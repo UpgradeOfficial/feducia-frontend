@@ -4,20 +4,17 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { CampaignContextProvider } from "./contexts/CampaignContext";
 import { MoralisProvider } from "react-moralis";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <MoralisProvider initializeOnMount={false}>
-    <CampaignContextProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/*" element={<App />} />
         </Routes>
       </BrowserRouter>
-    </CampaignContextProvider>
     </MoralisProvider>
   </React.StrictMode>
 );

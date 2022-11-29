@@ -3,8 +3,7 @@ import React from "react";
 const FAQModal = ({ visible, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // console.log(e.target.value)
-    // console.log("this form is been submitted")
+  
   };
   if (!visible) return null;
   return (

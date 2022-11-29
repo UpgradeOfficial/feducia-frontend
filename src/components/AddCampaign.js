@@ -1,12 +1,16 @@
 import { ethers } from "ethers";
 import React, { useState} from "react";
-// import DatePicker from "react-date-picker";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { parseError } from "../utils/parseError";
-const AddCampaign = ({ visible, onClose, crowdfund, provider }) => {
+
+
+import {useMoralis} from "react-moralis"
+import { contractAddresses, abi } from "../utils/constants";
+
+const AddCampaign = ({ visible, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("");
   const [goal, setGoal] = useState(0);
@@ -14,15 +18,25 @@ const AddCampaign = ({ visible, onClose, crowdfund, provider }) => {
   const [endAt, setEndAt] = useState(new Date());
   const navigate = useNavigate()
 
-  
+  const { chainId: chainIdHex } = useMoralis();
+ 
+
+  const chainId = parseInt(chainIdHex);
+  const crowdfundAddress =
+    chainId in contractAddresses
+      ? contractAddresses[chainId][contractAddresses[chainId].length - 1]
+      : null;
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formatGoal = ethers.utils.parseEther(goal);
-    console.log(formatGoal.toString());
     const formatStartAt = Math.floor(startAt.getTime() / 1000);
     const formatEndAt = Math.floor(endAt.getTime() / 1000);
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const network = await provider.getNetwork();
+    const crowdfund = new ethers.Contract(crowdfundAddress, abi, provider);
 
     try {
       const signer = await provider.getSigner();
@@ -31,7 +45,6 @@ const AddCampaign = ({ visible, onClose, crowdfund, provider }) => {
         .launch(name, formatGoal, formatStartAt, formatEndAt);
       const transactionReceipt = await transactionResponse.wait(1);
       const id = transactionReceipt.events[0].args.id.toString()
-      console.log(transactionReceipt.events[0].args.id.toString())
       e.target.reset();
 
       setIsLoading(false);

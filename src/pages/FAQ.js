@@ -1,19 +1,28 @@
 import React, {useState, useContext} from "react";
-import AddButton from "../components/AddButton";
 import FaqQuestion from "../components/FaqQuestion";
 import FAQModal from "../components/FAQModal";
-import { CampaignContext } from "../contexts/CampaignContext";
+import { useMoralis } from "react-moralis";
+import { contractAddresses } from "../utils/constants";
 
 const FAQ = () => {
-  const {  crowdfundAddress } =
-    useContext(CampaignContext);
+  
   const [modalState, setModalState] = useState(false)
+  const { chainId: chainIdHex } = useMoralis();
+ 
+
+  const chainId = parseInt(chainIdHex);
+  const crowdfundAddress =
+    chainId in contractAddresses
+      ? contractAddresses[chainId][contractAddresses[chainId].length - 1]
+      : null;
+
   const toggleModalState = () => {
     setModalState(!modalState)
   }
+
   const questions = [
     {
-      title: "How Do I Interact With The Dapp",
+      title: "HOW DO I INTERACT WITH THE DAPP",
       answer: [
         "The First Thing Is You Need To Download MetaMask, This Dapp Can only Be Accessed Via MetaMask For Now. ",
         "We are working to make sure that more wallet are supported in the future/2.0 of the project but for now the recommended wallet is metamask",
@@ -24,7 +33,7 @@ const FAQ = () => {
       },
     },
     {
-      title: "I can't click on refund",
+      title: "I CAN'T CLICK ON A BUTTON OR IT IS DISABLED",
       answer: [
         "You can only have a refund under 2 conditions",
         "1. The Campaign is over",
@@ -36,14 +45,14 @@ const FAQ = () => {
       },
     },
     {
-      title: "Can I use Windster in open-source projects?",
+      title: "iS IT FREE?",
       answer: [
-        "Generally, it is accepted to use Windster in open-source projects, along as it is not a UI library, a theme, a template, a page-builderthat would be considered as an alternative to Windster itself.",
-        " With that being said, feel free to use this design kit for your open-source projects.",
+        "It is free and will continue to be for the considerable future.",
+       "We offer other services that will help to publicise and  make your campaign more successfull, coming soon!!!"
       ],
       external_link: {
-        name: "reading the license",
-        url: "/license",
+        name: "Contacting Us",
+        url: "https://wa.me/%2B2347068448786?text=Hi%20Odeyemi%20Increase%20Ayobami.%20Tried%20out%20your%20game%2C%20having%20some%20slight%20difficulty.%20Can%20you%20be%20of%20any%20assistance%3F",
       },
     },
   ];
@@ -63,7 +72,6 @@ const FAQ = () => {
           ))}
         </div>
       </div>
-      <AddButton handleClick={toggleModalState}/>
       <FAQModal visible={modalState} onClose={toggleModalState}/>
     </section>
   );

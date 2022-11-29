@@ -1,15 +1,15 @@
-import React, { useContext, useEffect, useState } from "react";
-import { CampaignContext } from "../contexts/CampaignContext";
+import React, { useEffect, useState } from "react";
+
 import { useParams } from "react-router-dom";
 import CountDown from "../components/CountDown";
 import GoalRating from "../components/GoalRating";
 import PageNotFound from "./PageNotFound";
-import campaignimage from "../assets/campaign/campaign_fund_1.jpg";
 import EditCampaignData from "../components/EditCampaignData";
+import No_Image from "../assets/campaign/no_image.jpg"
 import { toast } from "react-toastify";
 import { parseError } from "../utils/parseError";
 import { ethers } from "ethers";
-import { getCampaignById } from "../utils/getDocument";
+import { getCampaignById as getCampaignByIdFromFirebase } from "../utils/getDocument";
 import {
   CAMPAIGN_ENDED,
   CAMPAIGN_STARTED,
@@ -30,9 +30,11 @@ const initailCampaignData = {
 const CampaignPage = () => {
   const [campaign, setCampaign] = useState(null);
   const { id } = useParams();
-  const { crowdfund, provider } = useContext(CampaignContext);
+
   const [modalState, setModalState] = useState(false);
   const [pledge, setPledge] = useState("0");
+  const [crowdfund, setCrowdfund] = useState("0");
+  const [provider, setProvider] = useState("0");
   const [mypledge, setMyPledge] = useState("0");
   const [campaignData, setCampaignData] = useState(initailCampaignData);
   const [minimumWithdrawalDuration, setMinimumWithdrawalDuration] =
@@ -40,13 +42,20 @@ const CampaignPage = () => {
 
 
   const [amount, setAmount]  = useState("0")
-  const { chainId: chainIdHex, isWeb3Enabled, Moralis, account } = useMoralis();
+  const { chainId: chainIdHex, account } = useMoralis();
   const chainId = parseInt(chainIdHex);
   const crowdfundAddress = chainId in contractAddresses
   ? contractAddresses[chainId][contractAddresses[chainId].length - 1]
   : null;
 
-
+  const runContractOptions = { abi, contractAddress: crowdfundAddress };
+  const { runContractFunction: getCampaignById } = useWeb3Contract({
+    ...runContractOptions, // specify the networkId
+    functionName: "getCampaignById",
+    params: {
+      _id:id
+    }
+  });
   const toggleModalState = () => {
     setModalState(!modalState);
   };
@@ -54,7 +63,14 @@ const CampaignPage = () => {
   useEffect(() => {
     const loadCampaigns = async () => {
       try {
-        const campaign = await crowdfund.getCampaignById(id);
+        
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const network = await provider.getNetwork();
+        setProvider(provider)
+        const crowdfund = new ethers.Contract(crowdfundAddress, abi, provider);
+        setCrowdfund(crowdfund)
+        // const campaign = await crowdfund.getCampaignById(id);
+        const campaign = await getCampaignById();
         const mydonation = await crowdfund.getPledgeAmount(id, account);
         const minimumWithdrawalDuration =
           await crowdfund.getMinimumWithdrawalDuration();
@@ -63,7 +79,8 @@ const CampaignPage = () => {
         setMyPledge(mydonation.toString());
         setCampaign(campaign);
         setPledge(campaign.pledged);
-        const campaignData = (await getCampaignById(id)) ?? {};
+        const campaignData = (await getCampaignByIdFromFirebase(id)) ?? {};
+        console.log("campaign data: ", campaignData)
         setCampaignData(campaignData);
 
         // set the campaign to false using the error and isloading
@@ -73,7 +90,7 @@ const CampaignPage = () => {
       }
     };
     crowdfund && loadCampaigns();
-  }, [crowdfund]);
+  }, []);
 
   async function updateUIValues() {
     const campaign = await crowdfund.getCampaignById(id);
@@ -102,7 +119,6 @@ const CampaignPage = () => {
 
   const pledge_unpledge = async (e) => {
     e.preventDefault();
-    // console.log(amount)
     const amount = e.target[0].value;
     const isUnpledged = e.target[1].checked;
     const formatAmount = ethers.utils.parseEther(amount);
@@ -113,13 +129,8 @@ const CampaignPage = () => {
         transaction = await crowdfund
           .connect(signer)
           .unpledge(id, formatAmount);
-        // await crowdfund_pledge({
-        //   // onComplete:
-        //   // onError:
-        //   onSuccess: console.log("completed"),
-        //   onError: (error) => console.log(error),
+       
         // });
-        console.log("pledge_is_loading", pledge_is_loading)
       } else {
         transaction = await crowdfund
           .connect(signer)
@@ -186,7 +197,7 @@ const CampaignPage = () => {
         (campaign.endAt.toNumber() + Number(minimumWithdrawalDuration)) * 1000
       );
   };
-
+  console.log(campaignData.banner,"banner")
   return (
     <>
       {campaign ? (
@@ -197,10 +208,11 @@ const CampaignPage = () => {
                 alt="campaign banner"
                 className="lg:w-1/2 w-full object-cover object-center rounded border border-gray-200"
                 src={
-                  campaignData.banner === ""
-                    ? campaignimage
-                    : campaignData.banner
+                  campaignData.banner ??
+                    No_Image
+                    
                 }
+                
               />
               <div className="lg:w-1/2 w-full lg:pl-10 lg:py-6 mt-6 lg:mt-0">
                 <div>
@@ -391,7 +403,11 @@ const CampaignPage = () => {
                     </div>
                     <button
                       type="submit"
-                      className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                      className={`${isPastDate(
+                        campaign.endAt.toNumber()) || !isPastDate(
+                          campaign.startAt.toNumber()) ? " bg-blue-200 hover:bg-blue-200  dark:bg-blue-200 dark:hover:bg-blue-200 dark:focus:ring-blue-200 focus:ring-blue-200": " bg-blue-700 hover:bg-blue-800  dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 focus:ring-blue-300"} text-white focus:ring-4 focus:outline-none  font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center`}
+                      disabled={isPastDate(
+                        campaign.endAt.toNumber())}
                     >
                       Proceed
                     </button>

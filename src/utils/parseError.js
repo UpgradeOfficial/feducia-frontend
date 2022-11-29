@@ -71,7 +71,6 @@ export function parseError(message) {
   errorDict.map((err) => {
     // console.log(err.name, message.includes(err.name))
     if (message.includes(err.name)) {
-      console.log("message", err.errorMessage);
       errMsg = err.errorMessage;
     }
   });

@@ -29,7 +29,7 @@ const CountDown = ({ countdownTimestampMs, getCampaignStatus }) => {
     else if (message === CAMPAIGN_ENDED) return "Countdown to Fund Maturity"
     else if (message === CAMPAIGN_NOT_STARTED) return "Countdown to Campaign Opening"
   }
- 
+  // if () return null;
   return (
     <div>
       <div className="flex place-content-center">

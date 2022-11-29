@@ -1,28 +1,37 @@
+import { ethers } from "ethers";
+import { useMoralis } from "react-moralis";
 import { toast } from "react-toastify";
-import { ZERO_ADDRESS } from "../utils/constants";
+import { ZERO_ADDRESS, contractAddresses, abi } from "../utils/constants";
 
+const Search = ({ setCampaigns }) => {
 
-const Search = ({crowdfund, setCampaigns}) => {
-
-  // const { crowdfund, setActiveCampaign, provider } =
-  // useContext(CampaignContext);
+  const { chainId: chainIdHex } = useMoralis();
+  const chainId = parseInt(chainIdHex)
+  const crowdfundAddress =  chainId in contractAddresses
+      ? contractAddresses[chainId][contractAddresses[chainId].length - 1]
+      : null;
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const network = await provider.getNetwork();
+    const crowdfund = new ethers.Contract(crowdfundAddress, abi, provider);
     const search_id = e.target[0].value;
-    try{
-      const campaign = await crowdfund.getCampaignById(search_id)
-      if (campaign.creator === ZERO_ADDRESS) return toast.error("There is no campaign with this id")
-      setCampaigns([campaign])
+    try {
+      const campaign = await crowdfund.getCampaignById(search_id);
+      if (campaign.creator === ZERO_ADDRESS)
+        return toast.error("There is no campaign with this id");
+      setCampaigns([campaign]);
+    } catch (err) {
+      console.log(err);
+      toast.error(err);
 
-    }catch(err){
-      console.log(err)
-      toast.error(err)
     }
-  }
+  };
+
   return (
     <form className="flex items-center p-4 m-4" onSubmit={handleSubmit}>
-      <label htmlhtmlFor="simple-search" className="sr-only">
+      <label htmlFor="simple-search" className="sr-only">
         Search
       </label>
       <div className="relative w-full">

@@ -3,7 +3,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { doc, setDoc } from "firebase/firestore";
 import { db, storage } from "../firebase";
 import { toast } from "react-toastify";
-import { getCampaignById } from "../utils/getDocument";
+import { getCampaignById as getCampaignByIdFromFirebase} from "../utils/getDocument";
 
 const EditCampaignData = ({
   visible,
@@ -35,7 +35,8 @@ const EditCampaignData = ({
     const description = e.target[2].value;
     const phone_no = e.target[3].value;
     const file = e.target[4].files[0];
-    const picture_name = `campaign_picture_${campaign_id}`;
+    const  todays_date = new Date()
+    const picture_name = `campaign_picture_${campaign_id}_${todays_date}`;
     setIsLoading(true);
     try {
       const storageRef = ref(storage, picture_name);
@@ -60,11 +61,11 @@ const EditCampaignData = ({
 
             console.log("File available at", downloadURL);
             setIsLoading(false);
-            const campaignData = await getCampaignById(campaign_id);
-            setCampaignData(campaignData);
+            const campaignData = await  getCampaignByIdFromFirebase(campaign_id);
             toast.success("data uploaded successfully");
             e.target.reset();
             onClose();
+            setCampaignData(campaignData);
           });
         }
       );

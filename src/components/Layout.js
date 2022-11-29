@@ -30,7 +30,7 @@ const Layout = () => {
                   </h1>
                   <p className="mb-4 text-3xl tracking-tight font-bold text-gray-900 md:text-4xl dark:text-white">
                     Sorry, Please Connect To A Supported Chain : Supported Chains
-                    are {supportedChains}{" "}
+                    are {supportedChains.join(", ")}{" "}
                   </p>
                   <p className="mb-4 text-lg font-light text-gray-500 dark:text-gray-400">
                   You can know more by  <a href="https://chainlist.org/">clicking here</a> 
