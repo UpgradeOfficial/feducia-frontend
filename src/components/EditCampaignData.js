@@ -4,6 +4,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { db, storage } from "../firebase";
 import { toast } from "react-toastify";
 import { getCampaignById as getCampaignByIdFromFirebase} from "../utils/getDocument";
+import {console} from "console-browserify"
 
 const EditCampaignData = ({
   visible,

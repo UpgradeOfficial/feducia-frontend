@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { CAMPAIGN_ENDED, CAMPAIGN_NOT_STARTED, CAMPAIGN_STARTED, ZERO_TIME } from "../utils/constants";
 import { getRemainingTimeUntilMsTimestamp } from "../utils/countdownUtils";
+import {console} from "console-browserify"
 const defaultRemainingTime = {
   seconds: '00',
   minutes: '00',

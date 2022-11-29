@@ -1,5 +1,7 @@
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import {console} from "console-browserify"
+
 export const getCampaignById = async (id) => {
   const docRef = doc(db, "campaign", id);
   const docSnap = await getDoc(docRef);

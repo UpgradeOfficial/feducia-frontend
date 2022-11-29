@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import { useMoralis } from "react-moralis";
 import { toast } from "react-toastify";
 import { ZERO_ADDRESS, contractAddresses, abi } from "../utils/constants";
+import {console} from "console-browserify"
 
 const Search = ({ setCampaigns }) => {
 
@@ -17,6 +18,7 @@ const Search = ({ setCampaigns }) => {
     const network = await provider.getNetwork();
     const crowdfund = new ethers.Contract(crowdfundAddress, abi, provider);
     const search_id = e.target[0].value;
+    
     try {
       const campaign = await crowdfund.getCampaignById(search_id);
       if (campaign.creator === ZERO_ADDRESS)
