@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import { parseError } from "../utils/parseError";
 import { ethers } from "ethers";
 import { getCampaignById as getCampaignByIdFromFirebase } from "../utils/getDocument";
-import {console} from "console-browserify"
+// import {console} from "console-browserify"
 import {
   CAMPAIGN_ENDED,
   CAMPAIGN_STARTED,
@@ -81,7 +81,6 @@ const CampaignPage = () => {
         setCampaign(campaign);
         setPledge(campaign.pledged);
         const campaignData = (await getCampaignByIdFromFirebase(id)) ?? {};
-        console.log("campaign data: ", campaignData)
         setCampaignData(campaignData);
 
         // set the campaign to false using the error and isloading
@@ -198,7 +197,6 @@ const CampaignPage = () => {
         (campaign.endAt.toNumber() + Number(minimumWithdrawalDuration)) * 1000
       );
   };
-  console.log(campaignData.banner,"banner")
   return (
     <>
       {campaign ? (
@@ -408,7 +406,8 @@ const CampaignPage = () => {
                         campaign.endAt.toNumber()) || !isPastDate(
                           campaign.startAt.toNumber()) ? " bg-blue-200 hover:bg-blue-200  dark:bg-blue-200 dark:hover:bg-blue-200 dark:focus:ring-blue-200 focus:ring-blue-200": " bg-blue-700 hover:bg-blue-800  dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 focus:ring-blue-300"} text-white focus:ring-4 focus:outline-none  font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center`}
                       disabled={isPastDate(
-                        campaign.endAt.toNumber())}
+                        campaign.endAt.toNumber()) || !isPastDate(
+                          campaign.startAt.toNumber())}
                     >
                       Proceed
                     </button>

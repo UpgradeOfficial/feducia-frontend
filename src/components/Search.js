@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import { useMoralis } from "react-moralis";
 import { toast } from "react-toastify";
 import { ZERO_ADDRESS, contractAddresses, abi } from "../utils/constants";
-import {console} from "console-browserify"
+// import {console} from "console-browserify"
 
 const Search = ({ setCampaigns }) => {
 
@@ -25,7 +25,7 @@ const Search = ({ setCampaigns }) => {
         return toast.error("There is no campaign with this id");
       setCampaigns([campaign]);
     } catch (err) {
-      console.log(err);
+      // console.log(err);
       toast.error(err);
 
     }

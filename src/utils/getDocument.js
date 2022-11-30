@@ -1,6 +1,6 @@
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import {console} from "console-browserify"
+// import {console} from "console-browserify"
 
 export const getCampaignById = async (id) => {
   const docRef = doc(db, "campaign", id);
@@ -11,6 +11,6 @@ export const getCampaignById = async (id) => {
     return docSnap.data()
   } else {
     // doc.data() will be undefined in this case
-    console.log("No such document!");
+    // console.log("No such document!");
   }
 };

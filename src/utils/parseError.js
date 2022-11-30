@@ -1,4 +1,4 @@
-import {console} from "console-browserify"
+// import {console} from "console-browserify"
 
 export function parseError(message) {
   let errMsg;

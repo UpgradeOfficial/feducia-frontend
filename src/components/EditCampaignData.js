@@ -4,7 +4,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { db, storage } from "../firebase";
 import { toast } from "react-toastify";
 import { getCampaignById as getCampaignByIdFromFirebase} from "../utils/getDocument";
-import {console} from "console-browserify"
+// import {console} from "console-browserify"
 
 const EditCampaignData = ({
   visible,
@@ -60,7 +60,6 @@ const EditCampaignData = ({
               banner: downloadURL,
             });
 
-            console.log("File available at", downloadURL);
             setIsLoading(false);
             const campaignData = await  getCampaignByIdFromFirebase(campaign_id);
             toast.success("data uploaded successfully");

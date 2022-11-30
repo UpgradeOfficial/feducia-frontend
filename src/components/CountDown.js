@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { CAMPAIGN_ENDED, CAMPAIGN_NOT_STARTED, CAMPAIGN_STARTED, ZERO_TIME } from "../utils/constants";
 import { getRemainingTimeUntilMsTimestamp } from "../utils/countdownUtils";
-import {console} from "console-browserify"
 const defaultRemainingTime = {
   seconds: '00',
   minutes: '00',
@@ -12,7 +11,10 @@ const CountDown = ({ countdownTimestampMs, getCampaignStatus }) => {
   const [remainingTime, setRemainingTime] = useState(defaultRemainingTime);
   function updateRemainingTime(countdown) {
     const get_remaining_time = getRemainingTimeUntilMsTimestamp(countdown)
-    // console.log(get_remaining_time)
+    // console.log(, defaultRemainingTime)
+    if (Object.values(get_remaining_time).every(e=> e === "00")){
+      // console.log("campaign has ended!!")
+    }
     setRemainingTime(get_remaining_time);
 }
 
@@ -23,6 +25,9 @@ const CountDown = ({ countdownTimestampMs, getCampaignStatus }) => {
         return () => clearInterval(intervalId);
     },[countdownTimestampMs]);
 
+  if (defaultRemainingTime){
+
+  }
    
   const getCountDownMessage = () =>{
     const message = getCampaignStatus()
