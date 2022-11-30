@@ -25,7 +25,6 @@ const Search = ({ setCampaigns }) => {
         return toast.error("There is no campaign with this id");
       setCampaigns([campaign]);
     } catch (err) {
-      // console.log(err);
       toast.error(err);
 
     }

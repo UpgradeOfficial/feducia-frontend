@@ -11,19 +11,17 @@ const CountDown = ({ countdownTimestampMs, getCampaignStatus }) => {
   const [remainingTime, setRemainingTime] = useState(defaultRemainingTime);
   function updateRemainingTime(countdown) {
     const get_remaining_time = getRemainingTimeUntilMsTimestamp(countdown)
-    // console.log(, defaultRemainingTime)
     if (Object.values(get_remaining_time).every(e=> e === "00")){
-      // console.log("campaign has ended!!")
     }
     setRemainingTime(get_remaining_time);
 }
 
     useEffect(() => {
         const intervalId = setInterval(() => {
-            updateRemainingTime(countdownTimestampMs);
+            updateRemainingTime(countdownTimestampMs(getCampaignStatus()));
         }, 1000);
         return () => clearInterval(intervalId);
-    },[countdownTimestampMs]);
+    },[countdownTimestampMs(getCampaignStatus())]);
 
   if (defaultRemainingTime){
 
@@ -31,9 +29,9 @@ const CountDown = ({ countdownTimestampMs, getCampaignStatus }) => {
    
   const getCountDownMessage = () =>{
     const message = getCampaignStatus()
-    if(message === CAMPAIGN_STARTED) return "Countdowm to end of campaign"
-    else if (message === CAMPAIGN_ENDED) return "Countdown to Fund Maturity"
-    else if (message === CAMPAIGN_NOT_STARTED) return "Countdown to Campaign Opening"
+    if(message === CAMPAIGN_STARTED) return "COUNTDOWN TO END OF CAMPAIGN"
+    else if (message === CAMPAIGN_ENDED) return "COUNTDOWN TO FUND MATURITY"
+    else if (message === CAMPAIGN_NOT_STARTED) return "COUNTDOWN TO  CAMPAIGN OPENING"
   }
   // if () return null;
   return (

@@ -22,7 +22,7 @@ const FAQ = () => {
 
   const questions = [
     {
-      title: "HOW DO I INTERACT WITH THE DAPP",
+      title: "HOW DO I INTERACT WITH THE DAPP?",
       answer: [
         "The First Thing Is You Need To Download MetaMask, This Dapp Can only Be Accessed Via MetaMask For Now. ",
         "We are working to make sure that more wallet are supported in the future/2.0 of the project but for now the recommended wallet is metamask",
@@ -33,7 +33,7 @@ const FAQ = () => {
       },
     },
     {
-      title: "I CAN'T CLICK ON A BUTTON OR IT IS DISABLED",
+      title: "I CAN'T CLICK ON A REFUND BUTTON OR IT IS DISABLED?",
       answer: [
         "You can only have a refund under 2 conditions",
         "1. The Campaign is over",
@@ -49,6 +49,17 @@ const FAQ = () => {
       answer: [
         "It is free and will continue to be for the considerable future.",
        "We offer other services that will help to publicise and  make your campaign more successfull, coming soon!!!"
+      ],
+      external_link: {
+        name: "Contacting Us",
+        url: "https://wa.me/%2B2347068448786?text=Hi%20Odeyemi%20Increase%20Ayobami.%20Tried%20out%20your%20game%2C%20having%20some%20slight%20difficulty.%20Can%20you%20be%20of%20any%20assistance%3F",
+      },
+    },
+    {
+      title: "WHY CAN'T I VIEW CAMPAIGN CONNECTING A WALLET?",
+      answer: [
+        "We plan on integrating moralis or the graph to be able to get events emitted by the contract",
+       "With that we will be able to show more feature such 1. Who deposited, 2. Who withdraw 3. Who has collect a Refund e.t.c"
       ],
       external_link: {
         name: "Contacting Us",

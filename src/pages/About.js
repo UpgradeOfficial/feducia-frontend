@@ -21,7 +21,7 @@ const About = () => {
   const features = [
     {
       title: "Finance",
-      description: "We make it easier to save and also access funds from anyone in a trustless way. Taking the opportunities provided by Polygon we made sure gas fee will not  hinder the process and reduce the HIGH gas fees of layer 1 chains",
+      description: "We make it easier to save and also access funds from anyone in a trustless way. Taking the opportunities provided by POLYGON we made sure gas fee will not  hinder the process and reduce the long waiting them for transaction to be added to the chain, characteristic of layer 1 chains",
       svg: <svg
       className="w-5 h-5 text-primary-600 lg:w-6 lg:h-6 dark:text-primary-300"
       fill="currentColor"
@@ -39,7 +39,7 @@ const About = () => {
     },
     {
       title: "Security",
-      description: "It was delibarately build using the blockchain to enjoy the security with is a characteristic of the blockchain",
+      description: "It was delibarately built using the blockchain to take advantage of the security built into the blockchain",
       svg:  <svg
       className="w-5 h-5 text-primary-600 lg:w-6 lg:h-6 dark:text-primary-300"
       fill="currentColor"
@@ -78,7 +78,7 @@ const About = () => {
             </h2>
             <p className="text-gray-500 sm:text-xl dark:text-gray-400">
               It all began in late 2022 as a idea to learn, build decentralised app, it has grown to be much more. We want funding and accessing 
-              financial aid to be more accessable than ever. We want you to test your new ideas and be an inspiration to us all (builders/creator).
+              financial aid to be more accessable than ever. We want you to test your new ideas and be remove the bottlenecks builders/creator face while getting funds.
               We can't wait to hear about great campaigns/ideas/projects funded with the help of this project that will be our joy. With Love from the Team.
             </p>
           </div>

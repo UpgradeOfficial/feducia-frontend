@@ -1,15 +1,28 @@
 import React, { useEffect, useState } from "react";
 
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import CountDown from "../components/CountDown";
 import GoalRating from "../components/GoalRating";
 import PageNotFound from "./PageNotFound";
 import EditCampaignData from "../components/EditCampaignData";
-import No_Image from "../assets/campaign/no_image.jpg"
+import No_Image from "../assets/campaign/no_image.jpg";
 import { toast } from "react-toastify";
 import { parseError } from "../utils/parseError";
 import { ethers } from "ethers";
 import { getCampaignById as getCampaignByIdFromFirebase } from "../utils/getDocument";
+import {
+  EmailShareButton,
+  FacebookShareButton,
+  LinkedinShareButton,
+  TelegramShareButton,
+  TwitterShareButton,
+  TwitterIcon,
+  WhatsappShareButton,
+  FacebookIcon,
+  TelegramIcon,
+  WhatsappIcon,
+  LinkedinIcon,
+} from "react-share";
 // import {console} from "console-browserify"
 import {
   CAMPAIGN_ENDED,
@@ -21,6 +34,8 @@ import {
 } from "../utils/constants";
 import { getCampaignCssStyle } from "../utils/commonFunctions";
 import { useMoralis, useWeb3Contract } from "react-moralis";
+import LoadingButton from "../components/LoadingButton";
+import Loader from "../components/Loader";
 const initailCampaignData = {
   facebook_url: "",
   twitter_url: "",
@@ -33,6 +48,9 @@ const CampaignPage = () => {
   const { id } = useParams();
 
   const [modalState, setModalState] = useState(false);
+  const [pageLoading, setPageLoading] = useState(false);
+  const [pledge_unpledge_is_loading, setpledge_unpledge_is_loading] =
+    useState(false);
   const [pledge, setPledge] = useState("0");
   const [crowdfund, setCrowdfund] = useState("0");
   const [provider, setProvider] = useState("0");
@@ -41,52 +59,53 @@ const CampaignPage = () => {
   const [minimumWithdrawalDuration, setMinimumWithdrawalDuration] =
     useState("0");
 
-
-  const [amount, setAmount]  = useState("0")
+  const [amount, setAmount] = useState("0");
   const { chainId: chainIdHex, account } = useMoralis();
   const chainId = parseInt(chainIdHex);
-  const crowdfundAddress = chainId in contractAddresses
-  ? contractAddresses[chainId][contractAddresses[chainId].length - 1]
-  : null;
+  const crowdfundAddress =
+    chainId in contractAddresses
+      ? contractAddresses[chainId][contractAddresses[chainId].length - 1]
+      : null;
 
   const runContractOptions = { abi, contractAddress: crowdfundAddress };
   const { runContractFunction: getCampaignById } = useWeb3Contract({
     ...runContractOptions, // specify the networkId
     functionName: "getCampaignById",
     params: {
-      _id:id
-    }
+      _id: id,
+    },
   });
+  const shareUrl = window.location.href;
   const toggleModalState = () => {
     setModalState(!modalState);
   };
 
   useEffect(() => {
     const loadCampaigns = async () => {
+      setPageLoading(true);
       try {
-        
         const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const network = await provider.getNetwork();
-        setProvider(provider)
+        setProvider(provider);
         const crowdfund = new ethers.Contract(crowdfundAddress, abi, provider);
-        setCrowdfund(crowdfund)
-        // const campaign = await crowdfund.getCampaignById(id);
+        setCrowdfund(crowdfund);
         const campaign = await getCampaignById();
+        setCampaign(campaign);
         const mydonation = await crowdfund.getPledgeAmount(id, account);
         const minimumWithdrawalDuration =
           await crowdfund.getMinimumWithdrawalDuration();
         setMinimumWithdrawalDuration(minimumWithdrawalDuration.toString());
         if (campaign.creator === ZERO_ADDRESS) return;
         setMyPledge(mydonation.toString());
-        setCampaign(campaign);
+
         setPledge(campaign.pledged);
         const campaignData = (await getCampaignByIdFromFirebase(id)) ?? {};
         setCampaignData(campaignData);
-
+        setPageLoading(false);
         // set the campaign to false using the error and isloading
       } catch (err) {
         // set error state if there is no campaign
         toast.error(err?.toString());
+        setPageLoading(false);
       }
     };
     crowdfund && loadCampaigns();
@@ -119,17 +138,19 @@ const CampaignPage = () => {
 
   const pledge_unpledge = async (e) => {
     e.preventDefault();
+    setpledge_unpledge_is_loading(true);
     const amount = e.target[0].value;
     const isUnpledged = e.target[1].checked;
     const formatAmount = ethers.utils.parseEther(amount);
     const signer = provider.getSigner();
     let transaction;
+
     try {
       if (isUnpledged) {
         transaction = await crowdfund
           .connect(signer)
           .unpledge(id, formatAmount);
-       
+
         // });
       } else {
         transaction = await crowdfund
@@ -139,11 +160,13 @@ const CampaignPage = () => {
 
       await transaction.wait();
       updateUIValues();
+      setpledge_unpledge_is_loading(false);
       toast.success("Transaction successfull");
       e.target.reset();
     } catch (err) {
       const errMsg = err.reason ?? parseError(err.message);
       toast.error(errMsg);
+      setpledge_unpledge_is_loading(false);
     }
   };
   const refund = async () => {
@@ -197,6 +220,7 @@ const CampaignPage = () => {
         (campaign.endAt.toNumber() + Number(minimumWithdrawalDuration)) * 1000
       );
   };
+
   return (
     <>
       {campaign ? (
@@ -206,17 +230,12 @@ const CampaignPage = () => {
               <img
                 alt="campaign banner"
                 className="lg:w-1/2 w-full object-cover object-center rounded border border-gray-200"
-                src={
-                  campaignData.banner ??
-                    No_Image
-                    
-                }
-                
+                src={campaignData.banner ?? No_Image}
               />
               <div className="lg:w-1/2 w-full lg:pl-10 lg:py-6 mt-6 lg:mt-0">
                 <div>
                   <CountDown
-                    countdownTimestampMs={getCountdownTime(getCampaignStatus())}
+                    countdownTimestampMs={getCountdownTime}
                     getCampaignStatus={getCampaignStatus}
                   />
                 </div>
@@ -224,7 +243,7 @@ const CampaignPage = () => {
                   BRAND NAME
                 </h2> */}
                 <h1 className="text-gray-900 text-3xl title-font font-medium mb-1">
-                  {campaign.name}
+                  {`${campaign.name} (Unique ID= ${id})`}
                 </h1>
                 <div className="flex mb-4">
                   <GoalRating
@@ -326,7 +345,45 @@ const CampaignPage = () => {
                   </strong>
                   . (Note: This measure is put in place to make sure there is a
                   period for refund if goal is not reached and put trust in the
-                  process)
+                  process. If page is not updated automatically (in an edge cases), please reload). Thank you
+                  <p>
+                    Support By Sharing:
+                    <FacebookShareButton
+                      url={shareUrl}
+                      quote={`${campaignData.description ?? campaign.name}`}
+                      className="Demo__some-network__share-button"
+                    >
+                      <FacebookIcon size={32} round />
+                    </FacebookShareButton>
+                    <TwitterShareButton
+                      url={shareUrl}
+                      title={`${campaignData.description ?? campaign.name}`}
+                      className="Demo__some-network__share-button"
+                    >
+                      <TwitterIcon size={32} round />
+                    </TwitterShareButton>
+                    <TelegramShareButton
+                      url={shareUrl}
+                      title={`${campaignData.description ?? campaign.name}`}
+                      className="Demo__some-network__share-button"
+                    >
+                      <TelegramIcon size={32} round />
+                    </TelegramShareButton>
+                    <WhatsappShareButton
+                      url={shareUrl}
+                      title={`${campaignData.description ?? campaign.name}`}
+                      separator=":: "
+                      className="Demo__some-network__share-button"
+                    >
+                      <WhatsappIcon size={32} round />
+                    </WhatsappShareButton>
+                    <LinkedinShareButton
+                      url={shareUrl}
+                      className="Demo__some-network__share-button"
+                    >
+                      <LinkedinIcon size={32} round />
+                    </LinkedinShareButton>
+                  </p>
                 </p>
                 <div className="flex mt-6 items-center pb-5 border-b-2 border-gray-200 mb-5">
                   <div className="flex place-content-center">
@@ -345,15 +402,24 @@ const CampaignPage = () => {
                           onClick={() => refund()}
                           type="button"
                           className={`${
-                            !isPastDate(campaign.endAt)
+                            !isPastDate(campaign.endAt) ||
+                            ethers.utils.formatEther(campaign.pledged) >=
+                              ethers.utils.formatEther(campaign.goal)
                               ? " bg-blue-200 mx-4 hover:bg-blue-200  dark:bg-blue-200 dark:hover:bg-blue-200  dark:focus:ring-blue-200 focus:ring-blue-300"
                               : " bg-blue-700 mx-4 hover:bg-blue-800  dark:bg-blue-600 dark:hover:bg-blue-700  dark:focus:ring-blue-800 focus:ring-blue-300"
                           } text-white focus:ring-4 focus:outline-none  font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center mr-2`}
-                          disabled={!isPastDate(campaign.endAt)}
+                          disabled={
+                            !isPastDate(campaign.endAt) ||
+                            ethers.utils.formatEther(campaign.pledged) >=
+                              ethers.utils.formatEther(campaign.goal)
+                          }
                         >
                           Refund
                         </button>
-                        <span>More info on refund</span>
+                        <span>
+                          {" "}
+                          <Link to="/faq"> Click For Info On refund</Link>
+                        </span>
                       </>
                     ) : (
                       <></>
@@ -375,7 +441,7 @@ const CampaignPage = () => {
                         Amount (Matic)
                       </label>
                       <input
-                        onChange={(e)=>setAmount(e.target.value)}
+                        onChange={(e) => setAmount(e.target.value)}
                         type="text"
                         id="amount"
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -400,17 +466,25 @@ const CampaignPage = () => {
                         fund)
                       </label>
                     </div>
-                    <button
-                      type="submit"
-                      className={`${isPastDate(
-                        campaign.endAt.toNumber()) || !isPastDate(
-                          campaign.startAt.toNumber()) ? " bg-blue-200 hover:bg-blue-200  dark:bg-blue-200 dark:hover:bg-blue-200 dark:focus:ring-blue-200 focus:ring-blue-200": " bg-blue-700 hover:bg-blue-800  dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 focus:ring-blue-300"} text-white focus:ring-4 focus:outline-none  font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center`}
-                      disabled={isPastDate(
-                        campaign.endAt.toNumber()) || !isPastDate(
-                          campaign.startAt.toNumber())}
-                    >
-                      Proceed
-                    </button>
+                    {pledge_unpledge_is_loading ? (
+                      <LoadingButton />
+                    ) : (
+                      <button
+                        type="submit"
+                        className={`${
+                          isPastDate(campaign.endAt.toNumber()) ||
+                          !isPastDate(campaign.startAt.toNumber())
+                            ? " bg-blue-200 hover:bg-blue-200  dark:bg-blue-200 dark:hover:bg-blue-200 dark:focus:ring-blue-200 focus:ring-blue-200"
+                            : " bg-blue-700 hover:bg-blue-800  dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 focus:ring-blue-300"
+                        } text-white focus:ring-4 focus:outline-none  font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center`}
+                        disabled={
+                          isPastDate(campaign.endAt.toNumber()) ||
+                          !isPastDate(campaign.startAt.toNumber())
+                        }
+                      >
+                        Proceed
+                      </button>
+                    )}
                   </form>
                 </div>
                 <div className="flex border-t-2 m-4 p-4">
@@ -425,7 +499,12 @@ const CampaignPage = () => {
                       <button
                         onClick={() => toggleModalState()}
                         type="button"
-                        className="text-white bg-blue-700 mx-4 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                        className={`${
+                          isPastDate(campaign.endAt)
+                            ? " dark:bg-blue-200 cursor-not-allowed  bg-blue-200 mx-4 hover:bg-blue-200 focus:ring-4  dark:hover:bg-blue-200 dark:focus:ring-blue-200 focus:ring-blue-200"
+                            : " dark:bg-blue-600  bg-blue-700 mx-4 hover:bg-blue-800 focus:ring-4  dark:hover:bg-blue-700 dark:focus:ring-blue-800 focus:ring-blue-300"
+                        } text-white focus:outline-none  font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center mr-2`}
+                        disabled={isPastDate(campaign.endAt)}
                       >
                         <svg
                           className="w-6 h-6"
@@ -477,7 +556,10 @@ const CampaignPage = () => {
             campaignData={campaignData}
             setCampaignData={setCampaignData}
           />
+          )
         </section>
+      ) : pageLoading ? (
+        <Loader />
       ) : (
         <PageNotFound />
       )}
