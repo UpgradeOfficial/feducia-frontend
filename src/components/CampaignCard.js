@@ -1,14 +1,25 @@
 import { ethers } from "ethers";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import No_Image from "../assets/campaign/no_image.jpg";
+import { getCampaignById as getCampaignByIdFromFirebase } from "../utils/getDocument";
+
 const CampaignCard = ({ campaign }) => {
+  const [campaignData, setCampaignData] = useState("")
+  useEffect(() => {
+    const loadData = async () => {
+      const campaignData = (await getCampaignByIdFromFirebase(campaign.id.toString()))?? {};
+      setCampaignData(campaignData )
+    };
+    loadData()
+  }, []);
   return (
     <div className="m-auto w-5/6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
       <a href="#">
         <img
-          className="rounded-t-lg"
-          src="/docs/images/blog/image-1.jpg"
-          alt=""
+          className="rounded-t-lg w-full"
+          src={campaignData.banner ??No_Image}
+          alt="Feducia-Campaign-Image"
         />
       </a>
       <div className="p-5">
@@ -23,7 +34,12 @@ const CampaignCard = ({ campaign }) => {
         <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
           Pledged: {ethers.utils.formatEther(campaign.pledged.toString())}
         </p>
-        <p>Creator: {campaign.creator.slice(0, 6) + "..." + campaign.creator.slice(38, 42)}</p>
+        <p>
+          Creator:{" "}
+          {campaign.creator.slice(0, 6) +
+            "..." +
+            campaign.creator.slice(38, 42)}
+        </p>
         <Link
           to={`/campaign/${campaign.id.toString()}`}
           className="inline-flex items-center py-2 px-3 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"

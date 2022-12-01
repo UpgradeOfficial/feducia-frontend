@@ -52,7 +52,7 @@ const FAQ = () => {
       ],
       external_link: {
         name: "Contacting Us",
-        url: "https://wa.me/%2B2347068448786?text=Hi%20Odeyemi%20Increase%20Ayobami.%20Tried%20out%20your%20game%2C%20having%20some%20slight%20difficulty.%20Can%20you%20be%20of%20any%20assistance%3F",
+        url: "https://wa.me/%2B2347068448786?text=Hi%20Odeyemi%20Increase%20Ayobami.%20Tried%20out%20your%20Dapp%2C%20having%20some%20slight%20difficulty.%20Can%20you%20be%20of%20any%20assistance%3F",
       },
     },
     {
@@ -63,7 +63,7 @@ const FAQ = () => {
       ],
       external_link: {
         name: "Contacting Us",
-        url: "https://wa.me/%2B2347068448786?text=Hi%20Odeyemi%20Increase%20Ayobami.%20Tried%20out%20your%20game%2C%20having%20some%20slight%20difficulty.%20Can%20you%20be%20of%20any%20assistance%3F",
+        url: "https://wa.me/%2B2347068448786?text=Hi%20Odeyemi%20Increase%20Ayobami.%20Tried%20out%20your%20Dapp%2C%20having%20some%20slight%20difficulty.%20Can%20you%20be%20of%20any%20assistance%3F",
       },
     },
   ];

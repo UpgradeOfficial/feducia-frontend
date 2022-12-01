@@ -1,6 +1,7 @@
 import React from "react";
 
 export const TeamMember = ({image, name, description, job}) => {
+  
   return (
     <div className="items-center bg-gray-50 rounded-lg shadow sm:flex dark:bg-gray-800 dark:border-gray-700">
       <a href="#">
@@ -8,7 +9,7 @@ export const TeamMember = ({image, name, description, job}) => {
           className="w-full rounded-lg sm:rounded-none sm:rounded-l-lg"
           src={image}
           //   src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/sofia-mcguire.png"
-          alt="Sofia Avatar"
+          alt="Odeyemi-Increase-Ayobami"
         />
       </a>
       <div className="p-5">

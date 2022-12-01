@@ -11,7 +11,6 @@ import { parseError } from "../utils/parseError";
 import { ethers } from "ethers";
 import { getCampaignById as getCampaignByIdFromFirebase } from "../utils/getDocument";
 import {
-  EmailShareButton,
   FacebookShareButton,
   LinkedinShareButton,
   TelegramShareButton,
@@ -55,6 +54,7 @@ const CampaignPage = () => {
   const [crowdfund, setCrowdfund] = useState("0");
   const [provider, setProvider] = useState("0");
   const [mypledge, setMyPledge] = useState("0");
+  const [priceOfMaticInDollar, setPriceOfMaticInDollar] = useState("0");
   const [campaignData, setCampaignData] = useState(initailCampaignData);
   const [minimumWithdrawalDuration, setMinimumWithdrawalDuration] =
     useState("0");
@@ -75,6 +75,20 @@ const CampaignPage = () => {
       _id: id,
     },
   });
+  const { runContractFunction: getPriceOfMaticInDollar } = useWeb3Contract({
+    ...runContractOptions, // specify the networkId
+    functionName: "getLatestPrice",
+    params: {
+      _id: id,
+    },
+  });
+  const { runContractFunction: decimals } = useWeb3Contract({
+    ...runContractOptions, // specify the networkId
+    functionName: "decimals",
+    params: {
+      _id: id,
+    },
+  });
   const shareUrl = window.location.href;
   const toggleModalState = () => {
     setModalState(!modalState);
@@ -91,6 +105,8 @@ const CampaignPage = () => {
         const campaign = await getCampaignById();
         setCampaign(campaign);
         const mydonation = await crowdfund.getPledgeAmount(id, account);
+        const priceOfMaticInDollar = await getPriceOfMaticInDollar()
+        setPriceOfMaticInDollar(priceOfMaticInDollar.toNumber()/1e8)
         const minimumWithdrawalDuration =
           await crowdfund.getMinimumWithdrawalDuration();
         setMinimumWithdrawalDuration(minimumWithdrawalDuration.toString());
@@ -394,6 +410,14 @@ const CampaignPage = () => {
                       <span></span>
                       My Pledge: {ethers.utils.formatEther(mypledge)} Matic
                     </button>
+                    <button
+                      type="button"
+                      className="mx-2 inline-flex w-full items-center px-5 py-2.5 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    >
+                      <span></span>
+                    1 USD = {priceOfMaticInDollar} Matic
+                    </button>
+                    
                   </div>
                   <div className="flex place-content-center">
                     {Number(mypledge) > 0 ? (
