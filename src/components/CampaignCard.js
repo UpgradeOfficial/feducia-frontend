@@ -5,23 +5,26 @@ import No_Image from "../assets/campaign/no_image.jpg";
 import { getCampaignById as getCampaignByIdFromFirebase } from "../utils/getDocument";
 
 const CampaignCard = ({ campaign }) => {
-  const [campaignData, setCampaignData] = useState("")
+  const [campaignData, setCampaignData] = useState("");
   useEffect(() => {
     const loadData = async () => {
-      const campaignData = (await getCampaignByIdFromFirebase(campaign.id.toString()))?? {};
-      setCampaignData(campaignData )
+      const campaignData =
+        (await getCampaignByIdFromFirebase(campaign.id.toString())) ?? {};
+      setCampaignData(campaignData);
     };
-    loadData()
+    loadData();
   }, []);
   return (
     <div className="m-auto w-5/6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
-      <a href="#">
-        <img
-          className="rounded-t-lg w-full"
-          src={campaignData.banner ??No_Image}
-          alt="Feducia-Campaign-Image"
-        />
-      </a>
+      <div className="w-full">
+        <Link to={`/campaign/${campaign.id.toString()}/`}>
+          <img
+            className="rounded-t-lg w-full h-40"
+            src={campaignData.banner ?? No_Image}
+            alt="Feducia-Campaign-Image"
+          />
+        </Link>
+      </div>
       <div className="p-5">
         <a href="#">
           <h5 className=" text-center mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">

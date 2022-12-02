@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { parseError } from "../utils/parseError";
 
-import { useMoralis } from "react-moralis";
+import { useMoralis, useApiContract, useWeb3Contract } from "react-moralis";
 import { contractAddresses, abi } from "../utils/constants";
 import LoadingButton from "./LoadingButton";
 
@@ -26,6 +26,26 @@ const AddCampaign = ({ visible, onClose }) => {
       ? contractAddresses[chainId][contractAddresses[chainId].length - 1]
       : null;
 
+  // const {
+  //   runContractFunction: createCampaign,
+  //   data,
+  //   error,
+  //   isLoading: isCampaignLoading,
+  //   isFetching,
+  // } = useWeb3Contract({
+  //   abi: abi,
+  //   contractAddress: crowdfundAddress,
+  //   functionName: "launch",
+  //   params: {
+  //     _name: name,
+  //     _goal: 1000000,
+  //     _startAt: 1669997981, //Math.floor(startAt.getTime() / 1000),
+  //     _endAt: 1669997981, //Math.floor(endAt.getTime() / 1000),
+  //   },
+  // });
+
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -33,24 +53,28 @@ const AddCampaign = ({ visible, onClose }) => {
     const formatStartAt = Math.floor(startAt.getTime() / 1000);
     const formatEndAt = Math.floor(endAt.getTime() / 1000);
     const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const crowdfund = new ethers.Contract(crowdfundAddress, abi, provider);
+    const signer = await provider.getSigner();
+    const crowdfund = new ethers.Contract(crowdfundAddress, abi, signer);
+    
 
     try {
-      const signer = await provider.getSigner();
-      const transactionResponse = await crowdfund
-        .connect(signer)
-        .launch(name, formatGoal, formatStartAt, formatEndAt);
+      const transactionResponse = await crowdfund.launch(
+        name,
+        formatGoal,
+        formatStartAt,
+        formatEndAt,{gasLimit:210000}
+      );
       const transactionReceipt = await transactionResponse.wait(1);
       const id = transactionReceipt.events[0].args.id.toString();
       e.target.reset();
-
       setIsLoading(false);
       navigate(`/campaign/${id}/`);
       toast.success("Transaction Success");
       e.target.reset();
       onClose();
     } catch (err) {
-      const errMsg = err?.reason?? err?.message?? parseError(err.message);
+      console.log("error: ",err);
+      const errMsg = err?.reason ?? err?.message ?? parseError(err.message);
       toast.error(errMsg);
       setIsLoading(false);
       e.target.reset();

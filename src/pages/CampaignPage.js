@@ -165,13 +165,13 @@ const CampaignPage = () => {
       if (isUnpledged) {
         transaction = await crowdfund
           .connect(signer)
-          .unpledge(id, formatAmount);
+          .unpledge(id, formatAmount, {gasLimit:100000});
 
         // });
       } else {
         transaction = await crowdfund
           .connect(signer)
-          .pledge(id, { value: formatAmount });
+          .pledge(id, { value: formatAmount , gasLimit:100000});
       }
 
       await transaction.wait();
@@ -188,7 +188,7 @@ const CampaignPage = () => {
   const refund = async () => {
     const signer = provider.getSigner();
     try {
-      const transaction = await crowdfund.connect(signer).refund(id);
+      const transaction = await crowdfund.connect(signer).refund(id, {gasLimit:100000});
       await transaction.wait();
       updateUIValues();
       toast.success("Transaction successfull");
@@ -200,7 +200,7 @@ const CampaignPage = () => {
   const claim = async () => {
     const signer = provider.getSigner();
     try {
-      const transaction = await crowdfund.connect(signer).claim(id);
+      const transaction = await crowdfund.connect(signer).claim(id, {gasLimit:100000});
       await transaction.wait();
       updateUIValues();
       toast.success("Transaction successfull");
