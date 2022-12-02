@@ -73,7 +73,6 @@ const AddCampaign = ({ visible, onClose }) => {
       e.target.reset();
       onClose();
     } catch (err) {
-      console.log("error: ",err);
       const errMsg = err?.reason ?? err?.message ?? parseError(err.message);
       toast.error(errMsg);
       setIsLoading(false);
