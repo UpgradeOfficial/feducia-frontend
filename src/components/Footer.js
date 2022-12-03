@@ -1,6 +1,7 @@
 import React from "react";
 import { APP_NAME } from "../utils/constants";
 import { Link } from "react-router-dom";
+import F_LOGO from "../assets/f-logo.png"
 const Footer = () => {
   return (
     <footer className="p-4 bg-white md:p-8 lg:p-10 dark:bg-gray-800">
@@ -9,7 +10,8 @@ const Footer = () => {
           href="#"
           className="flex justify-center items-center text-2xl font-semibold text-gray-900 dark:text-white"
         >
-          <svg
+          <img src={F_LOGO} className="w-10 h-10" alt="logo" />
+          {/* <svg
             className="mr-2 h-8"
             viewBox="0 0 33 33"
             fill="none"
@@ -152,7 +154,7 @@ const Footer = () => {
                 <stop offset="1" stopColor="#45B2FF" />
               </linearGradient>
             </defs>
-          </svg>
+          </svg> */}
           {APP_NAME}
         </a>
         <p className="my-6 text-gray-500 dark:text-gray-400">
