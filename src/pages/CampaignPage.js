@@ -263,8 +263,8 @@ const CampaignPage = () => {
                 </h1>
                 <div className="flex mb-4">
                   <GoalRating
-                    goal={Number(campaign.goal)}
-                    pledge={Number(pledge)}
+                    goal={ethers.utils.formatEther(campaign.goal)}
+                    pledge={ethers.utils.formatEther(pledge)}
                   />
 
                   <span className="flex ml-3 pl-3 py-2 border-l-2 border-gray-200">
@@ -420,7 +420,7 @@ const CampaignPage = () => {
                     
                   </div>
                   <div className="flex place-content-center">
-                    {Number(mypledge) > 0 ? (
+                    {ethers.utils.formatEther(mypledge) > 0 ? (
                       <>
                         <button
                           onClick={() => refund()}

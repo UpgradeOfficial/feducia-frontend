@@ -27,7 +27,7 @@ const GoalRating = ({ goal, pledge }) => {
         ))}
 
         <span className="text-gray-600 ml-3">
-          Goal: {ethers.utils.formatEther(goal.toString())} Matic
+          Goal: {goal} Matic
         </span>
       </span>
     </>

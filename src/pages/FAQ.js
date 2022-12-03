@@ -59,11 +59,22 @@ const FAQ = () => {
       title: "WHY CAN'T I VIEW CAMPAIGN CONNECTING A WALLET?",
       answer: [
         "We plan on integrating moralis or the graph to be able to get events emitted by the contract",
-       "With that we will be able to show more feature such 1. Who deposited, 2. Who withdraw 3. Who has collect a Refund e.t.c"
+       "With that we will be able to show more feature such as 1. Who deposited, 2. Who withdraw 3. Who has collect a Refund e.t.c"
       ],
       external_link: {
         name: "Contacting Us",
         url: "https://wa.me/%2B2347068448786?text=Hi%20Odeyemi%20Increase%20Ayobami.%20Tried%20out%20your%20Dapp%2C%20having%20some%20slight%20difficulty.%20Can%20you%20be%20of%20any%20assistance%3F",
+      },
+    },
+    {
+      title: "I WANT TO INTERACT WITHOUT THE FRONTEND",
+      answer: [
+        "You can interact with the contract via two other recommended ways",
+       "1. Download the project 2. Use the verified contract on polyscan/etherscan",
+      ],
+      external_link: {
+        name: "VIewing The Source Code",
+        url: "https://github.com/UpgradeOfficial/feducia",
       },
     },
   ];
