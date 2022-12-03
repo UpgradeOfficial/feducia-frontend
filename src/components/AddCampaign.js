@@ -1,21 +1,23 @@
 import { ethers } from "ethers";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { parseError } from "../utils/parseError";
 
-import { useMoralis, useApiContract, useWeb3Contract } from "react-moralis";
+import { useMoralis, useWeb3Contract } from "react-moralis";
 import { contractAddresses, abi } from "../utils/constants";
 import LoadingButton from "./LoadingButton";
-
+import { findTime } from "../utils/commonFunctions";
 const AddCampaign = ({ visible, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("");
   const [goal, setGoal] = useState(0);
   const [startAt, setStartAt] = useState(new Date());
   const [endAt, setEndAt] = useState(new Date());
+  const [maxTimePeriod, setMaxTimePeriod] = useState({});
+
   const navigate = useNavigate();
 
   const { chainId: chainIdHex } = useMoralis();
@@ -26,25 +28,20 @@ const AddCampaign = ({ visible, onClose }) => {
       ? contractAddresses[chainId][contractAddresses[chainId].length - 1]
       : null;
 
-  // const {
-  //   runContractFunction: createCampaign,
-  //   data,
-  //   error,
-  //   isLoading: isCampaignLoading,
-  //   isFetching,
-  // } = useWeb3Contract({
-  //   abi: abi,
-  //   contractAddress: crowdfundAddress,
-  //   functionName: "launch",
-  //   params: {
-  //     _name: name,
-  //     _goal: 1000000,
-  //     _startAt: 1669997981, //Math.floor(startAt.getTime() / 1000),
-  //     _endAt: 1669997981, //Math.floor(endAt.getTime() / 1000),
-  //   },
-  // });
+  const runContractOptions = { abi, contractAddress: crowdfundAddress };
+  const { runContractFunction: getMaxDuration } = useWeb3Contract({
+    ...runContractOptions, // specify the networkId
+    functionName: "getMaxDuration",
+    params: {},
+  });
 
-  
+  useEffect(()=>{
+    const loadData = async () => {
+      const maxDur = await getMaxDuration()
+      setMaxTimePeriod(findTime(maxDur.toNumber()))
+    }
+    loadData()
+  },[])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,14 +52,14 @@ const AddCampaign = ({ visible, onClose }) => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = await provider.getSigner();
     const crowdfund = new ethers.Contract(crowdfundAddress, abi, signer);
-    
 
     try {
       const transactionResponse = await crowdfund.launch(
         name,
         formatGoal,
         formatStartAt,
-        formatEndAt,{gasLimit:210000}
+        formatEndAt,
+        { gasLimit: 210000 }
       );
       const transactionReceipt = await transactionResponse.wait(1);
       const id = transactionReceipt.events[0].args.id.toString();
@@ -194,7 +191,7 @@ const AddCampaign = ({ visible, onClose }) => {
                   />
                 </div>
               </div>
-
+              <p>The duration must be less than { `${maxTimePeriod?.year} year(s),${maxTimePeriod?.day} day(s),${maxTimePeriod?.hour} hour(s), ${maxTimePeriod?.minute} minute, ${maxTimePeriod?.second} second ] (note: this can be changed by the admin if the need arises) `}</p>
               <div className="flex justify-between">
                 {isLoading ? (
                   <LoadingButton />

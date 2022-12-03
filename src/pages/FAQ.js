@@ -1,24 +1,50 @@
-import React, {useState, useContext} from "react";
+import React, { useState,  useEffect } from "react";
 import FaqQuestion from "../components/FaqQuestion";
 import FAQModal from "../components/FAQModal";
-import { useMoralis } from "react-moralis";
-import { contractAddresses } from "../utils/constants";
+import { useMoralis, useWeb3Contract } from "react-moralis";
+import { contractAddresses, abi } from "../utils/constants";
+import { findTime } from "../utils/commonFunctions";
 
 const FAQ = () => {
-  
-  const [modalState, setModalState] = useState(false)
+  const [modalState, setModalState] = useState(false);
+  const [maxTimePeriod, setMaxTimePeriod] = useState({});
+  const [minimumWithdrawalDuration, setMinimumWithdrawalDuration] = useState({});
   const { chainId: chainIdHex } = useMoralis();
- 
 
   const chainId = parseInt(chainIdHex);
   const crowdfundAddress =
     chainId in contractAddresses
       ? contractAddresses[chainId][contractAddresses[chainId].length - 1]
       : null;
+  const runContractOptions = { abi, contractAddress: crowdfundAddress };
+  const { runContractFunction: getMaxDuration } = useWeb3Contract({
+    ...runContractOptions, // specify the networkId
+    functionName: "getMaxDuration",
+    params: {
+     
+    },
+  });
+  const { runContractFunction: getMinimumWithdrawalDuration } = useWeb3Contract({
+    ...runContractOptions, // specify the networkId
+    functionName: "getMinimumWithdrawalDuration",
+    params: {
+     
+    },
+  });
+
+  useEffect(()=>{
+    const loadData = async () => {
+      const maxDur = await getMaxDuration()
+      const minWithdrawalPeriod = await getMinimumWithdrawalDuration()
+      setMaxTimePeriod(findTime(maxDur.toNumber()))
+      setMinimumWithdrawalDuration(findTime(minWithdrawalPeriod.toNumber()))
+    }
+    loadData()
+  },[])
 
   const toggleModalState = () => {
-    setModalState(!modalState)
-  }
+    setModalState(!modalState);
+  };
 
   const questions = [
     {
@@ -48,7 +74,7 @@ const FAQ = () => {
       title: "iS IT FREE?",
       answer: [
         "It is free and will continue to be for the considerable future.",
-       "We offer other services that will help to publicise and  make your campaign more successfull, coming soon!!!"
+        "We offer other services that will help to publicise and  make your campaign more successfull, coming soon!!!",
       ],
       external_link: {
         name: "Contacting Us",
@@ -59,7 +85,7 @@ const FAQ = () => {
       title: "WHY CAN'T I VIEW CAMPAIGN CONNECTING A WALLET?",
       answer: [
         "We plan on integrating moralis or the graph to be able to get events emitted by the contract",
-       "With that we will be able to show more feature such as 1. Who deposited, 2. Who withdraw 3. Who has collect a Refund e.t.c"
+        "With that we will be able to show more feature such as 1. Who deposited, 2. Who withdraw 3. Who has collect a Refund e.t.c",
       ],
       external_link: {
         name: "Contacting Us",
@@ -70,7 +96,40 @@ const FAQ = () => {
       title: "I WANT TO INTERACT WITHOUT THE FRONTEND",
       answer: [
         "You can interact with the contract via two other recommended ways",
-       "1. Download the project 2. Use the verified contract on polyscan/etherscan",
+        "1. Download the project 2. Use the verified contract on polyscan/etherscan",
+      ],
+      external_link: {
+        name: "VIewing The Source Code",
+        url: "https://github.com/UpgradeOfficial/feducia",
+      },
+    },
+    {
+      title: "I CANT CREATE A CAMPAIGN",
+      answer: [
+        "There are some reason why you can create your campaign",
+        `1. You choose a date that is past 2. The duration of your campaign is greater than [ ${maxTimePeriod?.year} year(s),${maxTimePeriod?.day} day(s),${maxTimePeriod?.hour} hour(s), ${maxTimePeriod?.minute} minute, ${maxTimePeriod?.second} second ] (note: this can be changed by the admin if the need arises) ` ,
+      ],
+      external_link: {
+        name: "VIewing The Source Code",
+        url: "https://github.com/UpgradeOfficial/feducia",
+      },
+    },
+    {
+      title: "I CANT WITHDRAWAL",
+      answer: [
+        "The claim button is disabled to make sure that funds can't be withdrawn if the goal is not achieved, any funds left after that can be claimed by the owner of the campaign",
+        `The duration for the maturity of the funds is [ ${minimumWithdrawalDuration?.year} year(s),${minimumWithdrawalDuration?.day} day(s),${minimumWithdrawalDuration?.hour} hour(s), ${minimumWithdrawalDuration?.minute} minute, ${minimumWithdrawalDuration?.second} second ] (note: this can be changed by the admin if the need arises) ` ,
+      ],
+      external_link: {
+        name: "VIewing The Source Code",
+        url: "https://github.com/UpgradeOfficial/feducia",
+      },
+    },
+    {
+      title: "CAN I GUESS MY CAMPAIGN ID? ",
+      answer: [
+        "The campaign id are in numerical order, the next campaign with have an id of n + 1, where n is the id of the last campaign",
+        "This my not be the case in situation where there are multiple people on the Dapp creating a campaign, the id will be base on who is processsed first. The campaig id will also be show on the campaign page.",
       ],
       external_link: {
         name: "VIewing The Source Code",
@@ -94,7 +153,7 @@ const FAQ = () => {
           ))}
         </div>
       </div>
-      <FAQModal visible={modalState} onClose={toggleModalState}/>
+      <FAQModal visible={modalState} onClose={toggleModalState} />
     </section>
   );
 };

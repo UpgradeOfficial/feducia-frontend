@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState,  useEffect } from "react";
 import Search from "../components/Search";
 import CampaignCard from "../components/CampaignCard";
 
@@ -13,8 +13,7 @@ import Loader from "../components/Loader";
 const Home = () => {
   const [campaigns, setCampaigns] = useState([]);
   const [modalState, setModalState] = useState(false);
-  const [crowdfund, setCrowdfund] = useState(false);
-  const [provider, setProvider] = useState(false);
+  const [numOfCampaigns, setNumOfCampaigns] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const { chainId: chainIdHex } = useMoralis();
 
@@ -37,9 +36,8 @@ const Home = () => {
     const loadCampaigns = async () => {
       setIsLoading(true);
       const numOfCampaigns = await numberOfCampaigns();
+      setNumOfCampaigns(numOfCampaigns.toNumber())
       const provider = new ethers.providers.Web3Provider(window.ethereum);
-
-      const network = await provider.getNetwork();
       const crowdfund = new ethers.Contract(crowdfundAddress, abi, provider);
       const campaigns = [];
 
@@ -55,7 +53,19 @@ const Home = () => {
 
   return (
     <div className="Home">
-      <Search crowdfund={crowdfund} setCampaigns={setCampaigns} />
+      <Search  setCampaigns={setCampaigns} />
+      <div className="m-4">
+        <button
+          type="button"
+          class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        >
+          Total Campaigns
+          <span class="inline-flex justify-center items-center ml-2 w-4 h-4 text-xs font-semibold text-blue-800 bg-blue-200 rounded-full">
+            {numOfCampaigns}
+          </span>
+        </button>
+        
+      </div>
       {campaigns.length > 0 ? (
         <div className=" grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-4">
           {campaigns.map((campaign, index) => (
@@ -63,7 +73,7 @@ const Home = () => {
           ))}
         </div>
       ) : isLoading ? (
-        <Loader/>
+        <Loader />
       ) : (
         <div className="flex place-content-center">
           <section className="bg-white dark:bg-gray-900 grid-cols-1 place-content-center">
@@ -88,8 +98,6 @@ const Home = () => {
       <AddCampaign
         visible={modalState}
         onClose={toggleModalState}
-        crowdfund={crowdfund}
-        provider={provider}
       />
       <AddButton handleClick={toggleModalState} />
     </div>
